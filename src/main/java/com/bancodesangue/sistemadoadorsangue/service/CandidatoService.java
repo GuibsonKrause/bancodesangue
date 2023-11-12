@@ -47,6 +47,10 @@ public class CandidatoService {
         return candidatoRepository.save(candidato);
     }
 
+    public void saveAll(List<Candidato> candidatos) {
+        candidatoRepository.saveAll(candidatos);
+    }
+
     public Candidato update(Long id, Candidato candidatoDetails) {
         Candidato candidato = candidatoRepository.findById(id)
             .orElseThrow(() -> new IllegalStateException("Candidato com ID " + id + " não existe."));
