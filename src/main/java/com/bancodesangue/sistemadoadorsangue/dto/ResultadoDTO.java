@@ -7,7 +7,6 @@ public class ResultadoDTO {
     private Map<String, Double> mediaIdadePorTipoSanguineo;
     private Map<String, Long> possiveisDoadoresPorTipoSanguineo;
 
-    // Getters e setters para candidatosPorEstado
     public Map<String, Long> getCandidatosPorEstado() {
         return candidatosPorEstado;
     }
@@ -16,7 +15,6 @@ public class ResultadoDTO {
         this.candidatosPorEstado = candidatosPorEstado;
     }
 
-    // Getters e setters para imcMedioPorFaixaEtaria
     public Map<String, Double> getImcMedioPorFaixaEtaria() {
         return imcMedioPorFaixaEtaria;
     }
@@ -25,7 +23,6 @@ public class ResultadoDTO {
         this.imcMedioPorFaixaEtaria = imcMedioPorFaixaEtaria;
     }
 
-    // Getter e setter para percentualObesos
     public double getPercentualObesos() {
         return percentualObesos;
     }
@@ -34,7 +31,6 @@ public class ResultadoDTO {
         this.percentualObesos = percentualObesos;
     }
 
-    // Getters e setters para mediaIdadePorTipoSanguineo
     public Map<String, Double> getMediaIdadePorTipoSanguineo() {
         return mediaIdadePorTipoSanguineo;
     }
@@ -43,7 +39,6 @@ public class ResultadoDTO {
         this.mediaIdadePorTipoSanguineo = mediaIdadePorTipoSanguineo;
     }
 
-    // Getters e setters para possiveisDoadoresPorTipoSanguineo
     public Map<String, Long> getPossiveisDoadoresPorTipoSanguineo() {
         return possiveisDoadoresPorTipoSanguineo;
     }

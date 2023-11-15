@@ -6,5 +6,4 @@ public class CustomException extends RuntimeException {
         super(message);
     }
 
-    // Sobrescreva outros construtores conforme necessário ...
 }

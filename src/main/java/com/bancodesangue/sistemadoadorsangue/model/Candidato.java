@@ -89,7 +89,6 @@ public class Candidato {
     @Column(name = "tipo_sanguineo")
     private String tipoSanguineo;
 
-    // Getters
     public Long getId() { return id; }
     public String getNome() { return nome; }
     public String getCpf() { return cpf; }
@@ -111,7 +110,6 @@ public class Candidato {
     public Double getPeso() { return peso; }
     public String getTipoSanguineo() { return tipoSanguineo; }
 
-    // Setters
     public void setId(Long id) { this.id = id; }
     public void setNome(String nome) { this.nome = nome; }
     public void setCpf(String cpf) { this.cpf = cpf; }

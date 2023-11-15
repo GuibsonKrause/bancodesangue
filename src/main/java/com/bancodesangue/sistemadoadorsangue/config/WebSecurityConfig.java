@@ -16,7 +16,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // Desabilita CSRF
-                .cors(cors -> cors.disable()) // Desabilita CORS (se você não precisar dele)
+                .cors(cors -> cors.disable()) // Desabilita CORS
                 .authorizeHttpRequests((requests) -> requests
                         .anyRequest().permitAll()) // Permite todas as requisições sem autenticação
                 .httpBasic(basic -> basic.disable()); // Desabilita a autenticação HTTP Basic
