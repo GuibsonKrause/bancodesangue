@@ -106,7 +106,6 @@ public class CandidatoService {
         // Calcula a quantidade de possíveis doadores para cada tipo sanguíneo receptor
         Map<String, Long> possiveisDoadoresPorTipoSanguineo = calcularPossiveisDoadoresPorTipoSanguineo(candidatos);
 
-        // Cria o DTO de resultado e preenche com os dados calculados
         ResultadoDTO resultado = new ResultadoDTO();
         resultado.setCandidatosPorEstado(candidatosPorEstado);
         resultado.setImcMedioPorFaixaEtaria(imcMedioPorFaixaEtaria);
@@ -118,9 +117,46 @@ public class CandidatoService {
     }
 
     private Map<String, Double> calcularIMCMedioPorFaixaEtaria(List<Candidato> candidatos) {
-        // Implementar lógica para calcular o IMC médio por faixa etária
-        return new HashMap<>();
+        final int[] faixasDeIdade = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    
+        return candidatos.stream()
+                .collect(Collectors.groupingBy(
+                        candidato -> {
+                            int idade = calcularIdade(candidato.getDataNasc());
+                            return determinarFaixaEtaria(idade, faixasDeIdade);
+                        },
+                        Collectors.averagingDouble(
+                                candidato -> calcularIMC(candidato.getPeso(), candidato.getAltura())
+                        )
+                ));
     }
+    
+    private String determinarFaixaEtaria(int idade, int[] faixasDeIdade) {
+        for (int i = 0; i < faixasDeIdade.length - 1; i++) {
+            if (idade >= faixasDeIdade[i] && idade < faixasDeIdade[i + 1]) {
+                return faixasDeIdade[i] + "-" + (faixasDeIdade[i + 1] - 1);
+            }
+        }
+        return faixasDeIdade[faixasDeIdade.length - 1] + "+";
+    }
+    
+    private double calcularIMC(double peso, double altura) {
+        return altura > 0 ? peso / (altura * altura) : 0;
+    }
+    
+    private int calcularIdade(Date dataNasc) {
+        Calendar hoje = Calendar.getInstance();
+        Calendar nascimento = Calendar.getInstance();
+        nascimento.setTime(dataNasc);
+        
+        int diff = hoje.get(Calendar.YEAR) - nascimento.get(Calendar.YEAR);
+        if (nascimento.get(Calendar.MONTH) > hoje.get(Calendar.MONTH) ||
+                (nascimento.get(Calendar.MONTH) == hoje.get(Calendar.MONTH) && nascimento.get(Calendar.DATE) > hoje.get(Calendar.DATE))) {
+            diff--;
+        }
+        return diff;
+    }
+    
 
     private double calcularPercentualObesos(List<Candidato> candidatos) {
         // Implementar lógica para calcular o percentual de obesos
@@ -138,18 +174,6 @@ public class CandidatoService {
         // Implementar lógica para calcular a quantidade de possíveis doadores por tipo sanguíneo
         // Isso pode envolver uma lógica específica dependendo das regras de compatibilidade sanguínea
         return new HashMap<>();
-    }
-
-    private int calcularIdade(Date dataNasc) {
-        // Implementar lógica para calcular a idade do candidato a partir de sua data de nascimento
-        Calendar dataNascimento = Calendar.getInstance();
-        dataNascimento.setTime(dataNasc);
-        Calendar hoje = Calendar.getInstance();
-        int idade = hoje.get(Calendar.YEAR) - dataNascimento.get(Calendar.YEAR);
-        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR)) {
-            idade--; // Ainda não fez aniversário este ano
-        }
-        return idade;
     }
 
 }
