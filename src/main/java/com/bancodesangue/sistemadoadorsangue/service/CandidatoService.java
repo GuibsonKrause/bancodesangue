@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -178,16 +179,40 @@ public class CandidatoService {
         return Period.between(dataNascimento, LocalDate.now()).getYears();
     }
 
-
     private Map<String, Long> calcularPossiveisDoadoresPorTipoSanguineo(List<Candidato> candidatos) {
-        // Implementar lógica para calcular a quantidade de possíveis doadores por tipo sanguíneo
-        // Isso pode envolver uma lógica específica dependendo das regras de compatibilidade sanguínea
-        return new HashMap<>();
+        Map<String, List<String>> tipoSanguineoParaDoar = Map.of(
+            "A+", List.of("A+", "AB+"),
+            "A-", List.of("A+", "A-", "AB+", "AB-"),
+            "B+", List.of("B+", "AB+"),
+            "B-", List.of("B+", "B-", "AB+", "AB-"),
+            "AB+", List.of("AB+"),
+            "AB-", List.of("AB+", "AB-"),
+            "O+", List.of("A+", "B+", "O+", "AB+"),
+            "O-", List.of("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+        );
+    
+        Map<String, Long> possiveisDoadoresPorTipoSanguineo = new HashMap<>();
+    
+        tipoSanguineoParaDoar.values().stream()
+            .flatMap(Collection::stream)
+            .distinct()
+            .forEach(receptor -> possiveisDoadoresPorTipoSanguineo.put(receptor, 0L));
+    
+        candidatos.forEach(candidato -> {
+            int idade = calcularIdade(candidato.getDataNasc());
+            if (idade < 16 || idade > 69 || candidato.getPeso() < 50) {
+                return;
+            }
+            List<String> receptores = tipoSanguineoParaDoar.get(candidato.getTipoSanguineo());
+            if (receptores != null) {
+                receptores.forEach(receptor -> {
+                    long count = possiveisDoadoresPorTipoSanguineo.getOrDefault(receptor, 0L);
+                    possiveisDoadoresPorTipoSanguineo.put(receptor, count + 1);
+                });
+            }
+        });
+    
+        return possiveisDoadoresPorTipoSanguineo;
     }
-
-}
-
-
-   
 
 }
