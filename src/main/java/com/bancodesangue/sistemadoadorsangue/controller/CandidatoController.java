@@ -1,5 +1,6 @@
 package com.bancodesangue.sistemadoadorsangue.controller;
 
+import com.bancodesangue.sistemadoadorsangue.dto.ResultadoDTO;
 import com.bancodesangue.sistemadoadorsangue.model.Candidato;
 import com.bancodesangue.sistemadoadorsangue.service.CandidatoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,19 +36,21 @@ public class CandidatoController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<?> importCandidatos(@RequestBody List<Candidato> candidatos) {
+    public ResponseEntity<Object> importCandidatos(@RequestBody List<Candidato> candidatos) {
         try {
             candidatoService.saveAll(candidatos);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+
+            ResultadoDTO resultado = candidatoService.processarCandidatos(candidatos);
+
+            return new ResponseEntity<>(resultado, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             // Lógica para tratar violações de integridade, como entradas duplicadas
-            return ResponseEntity.badRequest().body("Falha na validação dos dados.");
+            return ResponseEntity.badRequest().body("Falha na validação dos dados: " + e.getMessage());
         } catch (Exception e) {
             // Lógica para tratar outras exceções
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.internalServerError().body("Erro no servidor: " + e.getMessage());
         }
     }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<Candidato> getCandidatoById(@PathVariable Long id) {
