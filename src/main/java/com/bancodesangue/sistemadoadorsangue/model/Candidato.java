@@ -3,7 +3,9 @@ package com.bancodesangue.sistemadoadorsangue.model;
 import java.util.Date;
 import java.util.Locale;
 
-import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +18,6 @@ import jakarta.persistence.Temporal;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 @Entity
 @Table(name = "candidatos")
@@ -35,7 +36,9 @@ public class Candidato {
     @Column(name = "rg")
     private String rg;
     
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.DATE)    
+    @JsonProperty("data_nasc")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "data_nascimento")
     private Date dataNasc;
     
@@ -69,6 +72,7 @@ public class Candidato {
     @Column(name = "estado")
     private String estado;
     
+    @JsonProperty("telefone_fixo")
     @Column(name = "telefone_fixo")
     private String telefoneFixo;
     
@@ -81,6 +85,7 @@ public class Candidato {
     @Column(name = "peso")
     private Double peso;
     
+    @JsonProperty("tipo_sanguineo")
     @Column(name = "tipo_sanguineo")
     private String tipoSanguineo;
 
