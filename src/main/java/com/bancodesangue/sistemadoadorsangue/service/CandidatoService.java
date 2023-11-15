@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.bancodesangue.sistemadoadorsangue.dto.ResultadoDTO;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -143,19 +146,6 @@ public class CandidatoService {
         }
         return peso / (altura * altura);
     }
-    
-    private int calcularIdade(Date dataNasc) {
-        Calendar hoje = Calendar.getInstance();
-        Calendar nascimento = Calendar.getInstance();
-        nascimento.setTime(dataNasc);
-        
-        int diff = hoje.get(Calendar.YEAR) - nascimento.get(Calendar.YEAR);
-        if (nascimento.get(Calendar.MONTH) > hoje.get(Calendar.MONTH) ||
-                (nascimento.get(Calendar.MONTH) == hoje.get(Calendar.MONTH) && nascimento.get(Calendar.DATE) > hoje.get(Calendar.DATE))) {
-            diff--;
-        }
-        return diff;
-    }
 
     private Map<String, Double> calcularPercentualObesosPorSexo(List<Candidato> candidatos) {
         double totalHomens = candidatos.stream().filter(c -> "Masculino".equalsIgnoreCase(c.getSexo())).count();
@@ -176,11 +166,18 @@ public class CandidatoService {
     }
 
     private Map<String, Double> calcularMediaIdadePorTipoSanguineo(List<Candidato> candidatos) {
-        // Implementar lógica para calcular a média de idade por tipo sanguíneo
-        return candidatos.stream()
-            .collect(Collectors.groupingBy(Candidato::getTipoSanguineo,
-                    Collectors.averagingInt(candidato -> calcularIdade(candidato.getDataNasc()))));
+    return candidatos.stream()
+        .collect(Collectors.groupingBy(
+            Candidato::getTipoSanguineo,
+            Collectors.averagingInt(candidato -> calcularIdade(candidato.getDataNasc()))
+        ));
     }
+
+    private int calcularIdade(Date dataNasc) {
+        LocalDate dataNascimento = dataNasc.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return Period.between(dataNascimento, LocalDate.now()).getYears();
+    }
+
 
     private Map<String, Long> calcularPossiveisDoadoresPorTipoSanguineo(List<Candidato> candidatos) {
         // Implementar lógica para calcular a quantidade de possíveis doadores por tipo sanguíneo
