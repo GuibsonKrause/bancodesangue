@@ -3,7 +3,8 @@ import java.util.Map;
 public class ResultadoDTO {
     private Map<String, Long> candidatosPorEstado;
     private Map<String, Double> imcMedioPorFaixaEtaria;
-    private double percentualObesos;
+    private double percentualObesosHomens;
+    private double percentualObesosMulheres;
     private Map<String, Double> mediaIdadePorTipoSanguineo;
     private Map<String, Long> possiveisDoadoresPorTipoSanguineo;
 
@@ -23,12 +24,20 @@ public class ResultadoDTO {
         this.imcMedioPorFaixaEtaria = imcMedioPorFaixaEtaria;
     }
 
-    public double getPercentualObesos() {
-        return percentualObesos;
+    public double getPercentualObesosHomens() {
+        return percentualObesosHomens;
     }
 
-    public void setPercentualObesos(double percentualObesos) {
-        this.percentualObesos = percentualObesos;
+    public void setPercentualObesosHomens(double percentualObesosHomens) {
+        this.percentualObesosHomens = percentualObesosHomens;
+    }
+
+    public double getPercentualObesosMulheres() {
+        return percentualObesosMulheres;
+    }
+
+    public void setPercentualObesosMulheres(double percentualObesosMulheres) {
+        this.percentualObesosMulheres = percentualObesosMulheres;
     }
 
     public Map<String, Double> getMediaIdadePorTipoSanguineo() {

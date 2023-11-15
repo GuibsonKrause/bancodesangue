@@ -94,22 +94,19 @@ public class CandidatoService {
         Map<String, Long> candidatosPorEstado = candidatos.stream()
             .collect(Collectors.groupingBy(Candidato::getEstado, Collectors.counting()));
 
-                // Calcula o IMC médio por faixa etária
         Map<String, Double> imcMedioPorFaixaEtaria = calcularIMCMedioPorFaixaEtaria(candidatos);
 
-        // Calcula o percentual de obesos
-        double percentualObesos = calcularPercentualObesos(candidatos);
-
-        // Calcula a média de idade por tipo sanguíneo
         Map<String, Double> mediaIdadePorTipoSanguineo = calcularMediaIdadePorTipoSanguineo(candidatos);
 
-        // Calcula a quantidade de possíveis doadores para cada tipo sanguíneo receptor
         Map<String, Long> possiveisDoadoresPorTipoSanguineo = calcularPossiveisDoadoresPorTipoSanguineo(candidatos);
+
+        Map<String, Double> percentuaisObesos = calcularPercentualObesosPorSexo(candidatos);
 
         ResultadoDTO resultado = new ResultadoDTO();
         resultado.setCandidatosPorEstado(candidatosPorEstado);
         resultado.setImcMedioPorFaixaEtaria(imcMedioPorFaixaEtaria);
-        resultado.setPercentualObesos(percentualObesos);
+        resultado.setPercentualObesosHomens(percentuaisObesos.get("Homens"));
+        resultado.setPercentualObesosMulheres(percentuaisObesos.get("Mulheres"));
         resultado.setMediaIdadePorTipoSanguineo(mediaIdadePorTipoSanguineo);
         resultado.setPossiveisDoadoresPorTipoSanguineo(possiveisDoadoresPorTipoSanguineo);
 
@@ -159,16 +156,26 @@ public class CandidatoService {
         }
         return diff;
     }
-    
 
-    private double calcularPercentualObesos(List<Candidato> candidatos) {
-        long totalObesos = candidatos.stream()
-                                      .filter(candidato -> calcularIMC(candidato.getPeso(), candidato.getAltura()) > 30)
-                                      .count();
-        return totalObesos * 100.0 / candidatos.size();
+    private Map<String, Double> calcularPercentualObesosPorSexo(List<Candidato> candidatos) {
+        double totalHomens = candidatos.stream().filter(c -> "Masculino".equalsIgnoreCase(c.getSexo())).count();
+        double totalMulheres = candidatos.stream().filter(c -> "Feminino".equalsIgnoreCase(c.getSexo())).count();
+    
+        double obesosHomens = candidatos.stream()
+            .filter(c -> "Masculino".equalsIgnoreCase(c.getSexo()) && calcularIMC(c.getPeso(), c.getAltura()) > 30)
+            .count();
+        double obesosMulheres = candidatos.stream()
+            .filter(c -> "Feminino".equalsIgnoreCase(c.getSexo()) && calcularIMC(c.getPeso(), c.getAltura()) > 30)
+            .count();
+    
+        Map<String, Double> percentuaisObesos = new HashMap<>();
+        percentuaisObesos.put("Homens", totalHomens > 0 ? (obesosHomens / totalHomens) * 100 : 0);
+        percentuaisObesos.put("Mulheres", totalMulheres > 0 ? (obesosMulheres / totalMulheres) * 100 : 0);
+    
+        return percentuaisObesos;
     }
 
-        private Map<String, Double> calcularMediaIdadePorTipoSanguineo(List<Candidato> candidatos) {
+    private Map<String, Double> calcularMediaIdadePorTipoSanguineo(List<Candidato> candidatos) {
         // Implementar lógica para calcular a média de idade por tipo sanguíneo
         return candidatos.stream()
             .collect(Collectors.groupingBy(Candidato::getTipoSanguineo,
