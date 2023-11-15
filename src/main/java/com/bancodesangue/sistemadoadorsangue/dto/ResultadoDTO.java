@@ -1,3 +1,5 @@
+package com.bancodesangue.sistemadoadorsangue.dto;
+
 import java.util.Map;
 
 public class ResultadoDTO {

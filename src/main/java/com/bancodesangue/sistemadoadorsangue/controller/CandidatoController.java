@@ -3,7 +3,6 @@ package com.bancodesangue.sistemadoadorsangue.controller;
 import com.bancodesangue.sistemadoadorsangue.dto.ResultadoDTO;
 import com.bancodesangue.sistemadoadorsangue.model.Candidato;
 import com.bancodesangue.sistemadoadorsangue.service.CandidatoService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ public class CandidatoController {
 
     private final CandidatoService candidatoService;
 
-    @Autowired
     public CandidatoController(CandidatoService candidatoService) {
         this.candidatoService = candidatoService;
     }

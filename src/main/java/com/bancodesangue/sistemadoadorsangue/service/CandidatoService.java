@@ -2,14 +2,12 @@ package com.bancodesangue.sistemadoadorsangue.service;
 
 import com.bancodesangue.sistemadoadorsangue.model.Candidato;
 import com.bancodesangue.sistemadoadorsangue.repository.CandidatoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.bancodesangue.sistemadoadorsangue.dto.ResultadoDTO;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,7 +21,6 @@ public class CandidatoService {
 
     private final CandidatoRepository candidatoRepository;
 
-    @Autowired
     public CandidatoService(CandidatoRepository candidatoRepository) {
         this.candidatoRepository = candidatoRepository;
     }
