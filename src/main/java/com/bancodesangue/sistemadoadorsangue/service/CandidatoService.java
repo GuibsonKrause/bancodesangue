@@ -141,7 +141,10 @@ public class CandidatoService {
     }
     
     private double calcularIMC(double peso, double altura) {
-        return altura > 0 ? peso / (altura * altura) : 0;
+        if (altura <= 0) {
+            return 0;
+        }
+        return peso / (altura * altura);
     }
     
     private int calcularIdade(Date dataNasc) {
@@ -159,8 +162,10 @@ public class CandidatoService {
     
 
     private double calcularPercentualObesos(List<Candidato> candidatos) {
-        // Implementar lógica para calcular o percentual de obesos
-        return 0;
+        long totalObesos = candidatos.stream()
+                                      .filter(candidato -> calcularIMC(candidato.getPeso(), candidato.getAltura()) > 30)
+                                      .count();
+        return totalObesos * 100.0 / candidatos.size();
     }
 
         private Map<String, Double> calcularMediaIdadePorTipoSanguineo(List<Candidato> candidatos) {
