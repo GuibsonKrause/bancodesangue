@@ -4,10 +4,15 @@ import com.bancodesangue.sistemadoadorsangue.model.Candidato;
 import com.bancodesangue.sistemadoadorsangue.repository.CandidatoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.bancodesangue.sistemadoadorsangue.dto.ResultadoDTO;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CandidatoService {
@@ -78,13 +83,78 @@ public class CandidatoService {
         return candidatoRepository.save(candidato);
     }
 
-
     public void delete(Long id) {
         Candidato candidato = candidatoRepository.findById(id)
             .orElseThrow(() -> new IllegalStateException("Candidato com ID " + id + " não existe."));
         candidatoRepository.delete(candidato);
     }
 
-    // Você pode adicionar outros métodos de serviço que façam sentido para a lógica do seu negócio
-    // Por exemplo, métodos para calcular a porcentagem de candidatos obesos, a quantidade de possíveis doadores por tipo sanguíneo, etc.
+    public ResultadoDTO processarCandidatos(List<Candidato> candidatos) {
+        // Calcula o número de candidatos por estado
+        Map<String, Long> candidatosPorEstado = candidatos.stream()
+            .collect(Collectors.groupingBy(Candidato::getEstado, Collectors.counting()));
+
+                // Calcula o IMC médio por faixa etária
+        Map<String, Double> imcMedioPorFaixaEtaria = calcularIMCMedioPorFaixaEtaria(candidatos);
+
+        // Calcula o percentual de obesos
+        double percentualObesos = calcularPercentualObesos(candidatos);
+
+        // Calcula a média de idade por tipo sanguíneo
+        Map<String, Double> mediaIdadePorTipoSanguineo = calcularMediaIdadePorTipoSanguineo(candidatos);
+
+        // Calcula a quantidade de possíveis doadores para cada tipo sanguíneo receptor
+        Map<String, Long> possiveisDoadoresPorTipoSanguineo = calcularPossiveisDoadoresPorTipoSanguineo(candidatos);
+
+        // Cria o DTO de resultado e preenche com os dados calculados
+        ResultadoDTO resultado = new ResultadoDTO();
+        resultado.setCandidatosPorEstado(candidatosPorEstado);
+        resultado.setImcMedioPorFaixaEtaria(imcMedioPorFaixaEtaria);
+        resultado.setPercentualObesos(percentualObesos);
+        resultado.setMediaIdadePorTipoSanguineo(mediaIdadePorTipoSanguineo);
+        resultado.setPossiveisDoadoresPorTipoSanguineo(possiveisDoadoresPorTipoSanguineo);
+
+        return resultado;
+    }
+
+    private Map<String, Double> calcularIMCMedioPorFaixaEtaria(List<Candidato> candidatos) {
+        // Implementar lógica para calcular o IMC médio por faixa etária
+        return new HashMap<>();
+    }
+
+    private double calcularPercentualObesos(List<Candidato> candidatos) {
+        // Implementar lógica para calcular o percentual de obesos
+        return 0;
+    }
+
+        private Map<String, Double> calcularMediaIdadePorTipoSanguineo(List<Candidato> candidatos) {
+        // Implementar lógica para calcular a média de idade por tipo sanguíneo
+        return candidatos.stream()
+            .collect(Collectors.groupingBy(Candidato::getTipoSanguineo,
+                    Collectors.averagingInt(candidato -> calcularIdade(candidato.getDataNasc()))));
+    }
+
+    private Map<String, Long> calcularPossiveisDoadoresPorTipoSanguineo(List<Candidato> candidatos) {
+        // Implementar lógica para calcular a quantidade de possíveis doadores por tipo sanguíneo
+        // Isso pode envolver uma lógica específica dependendo das regras de compatibilidade sanguínea
+        return new HashMap<>();
+    }
+
+    private int calcularIdade(Date dataNasc) {
+        // Implementar lógica para calcular a idade do candidato a partir de sua data de nascimento
+        Calendar dataNascimento = Calendar.getInstance();
+        dataNascimento.setTime(dataNasc);
+        Calendar hoje = Calendar.getInstance();
+        int idade = hoje.get(Calendar.YEAR) - dataNascimento.get(Calendar.YEAR);
+        if (hoje.get(Calendar.DAY_OF_YEAR) < dataNascimento.get(Calendar.DAY_OF_YEAR)) {
+            idade--; // Ainda não fez aniversário este ano
+        }
+        return idade;
+    }
+
+}
+
+
+   
+
 }
