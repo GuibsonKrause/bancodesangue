@@ -55,7 +55,7 @@ public class CandidatoController {
 
         try {
             String jsonContent = pdfService.extractTextFromPdf(file);
-            String sanitizedJson = jsonContent.replaceAll("\\r\\n|\\r|\\n", " ");
+            String sanitizedJson = jsonContent.replaceAll("\\r\\n|\\r|\\n", "");
             List<Candidato> candidatos = objectMapper.readValue(sanitizedJson, new TypeReference<List<Candidato>>() {});
 
             candidatoService.saveAll(candidatos);
