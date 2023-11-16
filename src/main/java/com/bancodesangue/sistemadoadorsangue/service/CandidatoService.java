@@ -5,12 +5,15 @@ import com.bancodesangue.sistemadoadorsangue.repository.CandidatoRepository;
 import org.springframework.stereotype.Service;
 import com.bancodesangue.sistemadoadorsangue.dto.ResultadoDTO;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -117,16 +120,20 @@ public class CandidatoService {
     private Map<String, Double> calcularIMCMedioPorFaixaEtaria(List<Candidato> candidatos) {
         final int[] faixasDeIdade = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
     
-        return candidatos.stream()
-                .collect(Collectors.groupingBy(
-                        candidato -> {
-                            int idade = calcularIdade(candidato.getDataNasc());
-                            return determinarFaixaEtaria(idade, faixasDeIdade);
-                        },
-                        Collectors.averagingDouble(
-                                candidato -> calcularIMC(candidato.getPeso(), candidato.getAltura())
-                        )
-                ));
+        Map<String, Double> imcMedioPorFaixaEtaria = candidatos.stream()
+            .collect(Collectors.groupingBy(
+                candidato -> {
+                    int idade = calcularIdade(candidato.getDataNasc());
+                    return determinarFaixaEtaria(idade, faixasDeIdade);
+                },
+                Collectors.averagingDouble(
+                    candidato -> calcularIMC(candidato.getPeso(), candidato.getAltura())
+                )
+            ));
+    
+        imcMedioPorFaixaEtaria.replaceAll((faixaEtaria, imcMedio) -> arredondar(imcMedio));
+    
+        return imcMedioPorFaixaEtaria;
     }
     
     private String determinarFaixaEtaria(int idade, int[] faixasDeIdade) {
@@ -146,29 +153,39 @@ public class CandidatoService {
     }
 
     private Map<String, Double> calcularPercentualObesosPorSexo(List<Candidato> candidatos) {
-        double totalHomens = candidatos.stream().filter(c -> "Masculino".equalsIgnoreCase(c.getSexo())).count();
-        double totalMulheres = candidatos.stream().filter(c -> "Feminino".equalsIgnoreCase(c.getSexo())).count();
+        long totalHomens = candidatos.stream().filter(c -> "Masculino".equalsIgnoreCase(c.getSexo())).count();
+        long totalMulheres = candidatos.stream().filter(c -> "Feminino".equalsIgnoreCase(c.getSexo())).count();
     
-        double obesosHomens = candidatos.stream()
+        long obesosHomens = candidatos.stream()
             .filter(c -> "Masculino".equalsIgnoreCase(c.getSexo()) && calcularIMC(c.getPeso(), c.getAltura()) > 30)
             .count();
-        double obesosMulheres = candidatos.stream()
+        long obesosMulheres = candidatos.stream()
             .filter(c -> "Feminino".equalsIgnoreCase(c.getSexo()) && calcularIMC(c.getPeso(), c.getAltura()) > 30)
             .count();
     
         Map<String, Double> percentuaisObesos = new HashMap<>();
-        percentuaisObesos.put("Homens", totalHomens > 0 ? (obesosHomens / totalHomens) * 100 : 0);
-        percentuaisObesos.put("Mulheres", totalMulheres > 0 ? (obesosMulheres / totalMulheres) * 100 : 0);
+        percentuaisObesos.put("Homens", arredondar(totalHomens > 0 ? (double) obesosHomens / totalHomens * 100 : 0));
+        percentuaisObesos.put("Mulheres", arredondar(totalMulheres > 0 ? (double) obesosMulheres / totalMulheres * 100 : 0));
     
         return percentuaisObesos;
     }
-
+    
+    private double arredondar(double valor) {
+        return BigDecimal.valueOf(valor)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
+    
     private Map<String, Double> calcularMediaIdadePorTipoSanguineo(List<Candidato> candidatos) {
-    return candidatos.stream()
-        .collect(Collectors.groupingBy(
-            Candidato::getTipoSanguineo,
-            Collectors.averagingInt(candidato -> calcularIdade(candidato.getDataNasc()))
-        ));
+        Map<String, Double> mediaIdadePorTipoSanguineo = candidatos.stream()
+            .collect(Collectors.groupingBy(
+                Candidato::getTipoSanguineo,
+                Collectors.averagingInt(candidato -> calcularIdade(candidato.getDataNasc()))
+            ));
+    
+        mediaIdadePorTipoSanguineo.replaceAll((tipoSanguineo, mediaIdade) -> arredondar(mediaIdade));
+    
+        return mediaIdadePorTipoSanguineo;
     }
 
     private int calcularIdade(Date dataNasc) {
