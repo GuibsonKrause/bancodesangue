@@ -23,7 +23,7 @@ public class CandidatoController {
 
     private final CandidatoService candidatoService;
     private final PDFService pdfService;
-    private final ObjectMapper objectMapper; // Usado para conversão de JSON
+    private final ObjectMapper objectMapper;
 
     public CandidatoController(CandidatoService candidatoService, PDFService pdfService, ObjectMapper objectMapper) {
         this.candidatoService = candidatoService;

@@ -93,7 +93,6 @@ public class CandidatoService {
     }
 
     public ResultadoDTO processarCandidatos(List<Candidato> candidatos) {
-        // Calcula o número de candidatos por estado
         Map<String, Long> candidatosPorEstado = candidatos.stream()
             .collect(Collectors.groupingBy(Candidato::getEstado, Collectors.counting()));
 
