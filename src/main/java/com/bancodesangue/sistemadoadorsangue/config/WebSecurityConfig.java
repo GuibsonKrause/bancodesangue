@@ -5,13 +5,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
+
+import com.bancodesangue.sistemadoadorsangue.security.JwtTokenFilter;
 import com.bancodesangue.sistemadoadorsangue.service.CustomUserDetailsService;
 
 import java.util.Arrays;
@@ -31,14 +35,23 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(CsrfConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()) // Exige autenticação para todas as requisições
-                .httpBasic(httpBasic -> httpBasic
-                        .realmName("SistemaDoadorSangueRealm")); // Configuração da autenticação básica
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(CsrfConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login").permitAll()  // Permitir acesso ao endpoint de login
+                .anyRequest().authenticated())      // Exige autenticação para todas as outras requisições
+            .httpBasic(httpBasic -> httpBasic
+                .realmName("SistemaDoadorSangueRealm"))
+            .addFilterBefore(new JwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManagerBean(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService)
+            .passwordEncoder(passwordEncoder());
+        return auth.build();
     }
 
     @Bean
@@ -52,11 +65,6 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
-
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
     }
 
     @Bean

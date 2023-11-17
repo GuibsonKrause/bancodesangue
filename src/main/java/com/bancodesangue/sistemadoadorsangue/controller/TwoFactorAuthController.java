@@ -1,13 +1,15 @@
-/*package com.bancodesangue.sistemadoadorsangue.controller;
+package com.bancodesangue.sistemadoadorsangue.controller;
 
-import org.apache.http.HttpStatus;
+import java.security.SecureRandom;
+
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.codec.binary.Hex;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.bancodesangue.sistemadoadorsangue.dto.QRCodeDTO;
+import com.bancodesangue.sistemadoadorsangue.dto.TwoFactorVerificationRequest;
 import com.bancodesangue.sistemadoadorsangue.service.TwoFactorAuthService;
 
 @RestController
@@ -21,24 +23,30 @@ public class TwoFactorAuthController {
     }
 
     @PostMapping("/2fa/enable")
-    public ResponseEntity<?> enableTwoFactorAuth(@RequestBody String userId) {
+    public ResponseEntity<QRCodeDTO> enableTwoFactorAuth(@RequestBody String userId) {
         // Aqui, você buscaria o usuário pelo id e geraria a chave secreta para ele
         String secretKey = twoFactorAuthService.generateSecretKey();
+        // Suponha que 'qrCodeUrl' seja uma string que você obteve após a geração do QR Code
+        String qrCodeUrl = twoFactorAuthService.generateQRCodeUrl(userId, secretKey);
         // Salve secretKey em um local seguro associado ao usuário
         // Gere o código QR e envie para o usuário
-        return ResponseEntity.ok().body(new QRCodeDTO(secretKey, qrCodeUrl));
+        return ResponseEntity.ok(new QRCodeDTO(secretKey, qrCodeUrl));
     }
 
     @PostMapping("/2fa/verify")
-    public ResponseEntity<?> verifyTwoFactorAuth(@RequestBody TwoFactorVerificationRequest request) {
-        boolean isAuthorized = twoFactorAuthService.authorize(request.getSecretKey(), request.getVerificationCode());
-        if (isAuthorized) {
-            return ResponseEntity.ok().body("2FA is enabled successfully.");
-        } else {
-            return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body("Invalid verification code.");
+    public ResponseEntity<String> verifyTwoFactorAuth(@RequestBody TwoFactorVerificationRequest request) {
+        try {
+            int verificationCode = Integer.parseInt(request.getVerificationCode());
+            boolean isAuthorized = twoFactorAuthService.authorize(request.getSecretKey(), verificationCode);
+
+            if (isAuthorized) {
+                return ResponseEntity.ok("2FA is enabled successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid verification code.");
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Verification code must be a number.");
         }
     }
 
-    // DTO e Request classes aqui...
 }
-*/
